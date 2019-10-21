@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import org.bson.types.Binary;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -19,6 +20,14 @@ import java.util.List;
 
 import static java.time.ZoneId.systemDefault;
 import static java.time.ZonedDateTime.ofInstant;
+
+/**
+ * <h3>Config</h3>
+ * Simple mongodb config
+ *
+ * @author tim
+ * @see MongoTemplate
+ */
 
 @Configuration
 public class MongoConfig {
@@ -44,6 +53,20 @@ public class MongoConfig {
     }
 
     public MongoCustomConversions customConversions() {
+        List<Converter<?, ?>> converters = new ArrayList<>();
+        converters.add(new BinaryToStringConverter());
+        return new MongoCustomConversions(converters);
+    }
+
+    private static class BinaryToStringConverter implements Converter<Binary, String> {
+        @Override
+        public String convert(Binary source) {
+            return new String (source.getData());
+        }
+    }
+
+
+  /*  public MongoCustomConversions customConversions() {
          List<Converter<?, ?>> converters = new ArrayList<>();
          converters.add(new BigDecimalToDoubleConverter());
          converters.add(new DateToZonedDateTimeConverter());
@@ -70,6 +93,6 @@ public class MongoConfig {
         public Date convert(ZonedDateTime source) {
             return source == null ? null : Date.from(source.toInstant());
         }
-    }
+    }*/
 
 }
